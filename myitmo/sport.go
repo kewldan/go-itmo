@@ -87,6 +87,9 @@ const (
 const (
 	// SportProjectKronbarsRunning needs no link when signing in.
 	SportProjectKronbarsRunning = 1
+	// SportProjectExternal is the external credit ("Экстернат"); signing in
+	// sends a link to the supporting document.
+	SportProjectExternal = 3
 	// SportProjectTheory is the theoretical credit.
 	SportProjectTheory = 4
 )

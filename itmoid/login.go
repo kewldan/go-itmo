@@ -33,7 +33,10 @@ func NewState() string {
 
 // AuthCodeURL returns the ITMO.ID login page for app. Pass an empty verifier
 // for apps without PKCE. Use it to drive the login in a browser or WebView,
-// then read the code with [ParseCallback].
+// then read the code with [ParseCallback]. In a regular browser the MyITMO
+// callback page redeems the one-time code itself; point app.RedirectURL at a
+// static file such as https://my.itmo.ru/robots.txt and use the same app in
+// [ParseCallback] and [Authenticator.Exchange].
 func (a *Authenticator) AuthCodeURL(app App, state, verifier string) string {
 	var opts []oauth2.AuthCodeOption
 	if app.PKCE && verifier != "" {

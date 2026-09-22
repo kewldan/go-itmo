@@ -108,6 +108,33 @@ tok, err := auth.Exchange(ctx, itmoid.MyITMO, &itmoid.Code{Value: code, Verifier
 `error`, фрагмента и повторяющихся параметров. Для БАРС используйте
 `itmoid.BARS` (без PKCE, `verifier` пустой) и передайте код в `bars.Client.Login`.
 
+#### Вход по ссылке в обычном браузере
+
+WebView перехватывает редирект до загрузки страницы. В обычном браузере так
+сделать нельзя: браузер откроет `https://my.itmo.ru/login/callback`, и скрипт
+my.itmo сам потратит одноразовый код. Обмен в приложении тогда падает с
+`invalid_grant: Code not valid`.
+
+ITMO.ID принимает для `student-personal-cabinet` любой адрес вида
+`https://my.itmo.ru/*`. Поэтому редирект можно направить на статический файл,
+где скриптов нет, и попросить пользователя скопировать адрес из адресной строки:
+
+```go
+app := itmoid.MyITMO
+app.RedirectURL = "https://my.itmo.ru/robots.txt" // простой текст, код никто не тронет
+
+loginURL := auth.AuthCodeURL(app, state, verifier) // показать пользователю или открыть в браузере
+// пользователь вставляет https://my.itmo.ru/robots.txt?state=...&code=...
+code, err := itmoid.ParseCallback(app, auth.Issuer(), pastedURL, state)
+tok, err := auth.Exchange(ctx, app, &itmoid.Code{Value: code, Verifier: verifier, State: state})
+
+client := myitmo.New(auth.TokenSource(ctx, itmoid.MyITMO, tok, save))
+```
+
+`RedirectURL` в `Exchange` должен совпадать с адресом из `AuthCodeURL`. Для
+обновления токена адрес не нужен, так что дальше можно передавать обычный
+`itmoid.MyITMO`. Код живёт около минуты.
+
 ### Готовый access token
 
 Например, скопированный из браузера. Он живёт несколько минут и сам не обновляется:

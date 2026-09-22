@@ -1,0 +1,10 @@
+/bin/
+/dist/
+/coverage.*
+*.test
+*.out
+.idea/
+.vscode/
+.DS_Store
+.env
+.refresh-token
